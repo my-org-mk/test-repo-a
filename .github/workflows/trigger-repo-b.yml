@@ -1,0 +1,20 @@
+name: Trigger Repo B Workflow
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    permissions:
+      # Grant write access to send repository_dispatch
+      actions: write
+      contents: read
+    steps:
+      - name: Trigger Repo B
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
+          repository: my-test-org/repo-b     # Replace with your org/repo-b
+          event-type: run_workflow           # Must match Repo B's event type
