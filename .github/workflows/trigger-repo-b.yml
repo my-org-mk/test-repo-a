@@ -20,9 +20,7 @@ jobs:
           uses: anothrNick/github-tag-action@1.71.0
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            WITH_V: false
-            INITIAL_VERSION: 1.-1.0
-            DEFAULT_BUMP: minor
+            INITIAL_VERSION: 0.0.0
 #      - name: Trigger Repo B
 #        uses: peter-evans/repository-dispatch@v2
 #        with:
