@@ -12,9 +12,19 @@ jobs:
       actions: write
       contents: read
     steps:
-      - name: Trigger Repo B
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
-          repository: my-test-org/repo-b     # Replace with your org/repo-b
-          event-type: run_workflow           # Must match Repo B's event type
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Github Tag Bump
+          id: tag-bump
+          uses: anothrNick/github-tag-action@1.67.0
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            WITH_V: true
+            INITIAL_VERSION: 1.0.0
+            DEFAULT_BUMP: minor
+#      - name: Trigger Repo B
+#        uses: peter-evans/repository-dispatch@v2
+#        with:
+#          token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
+#          repository: my-test-org/repo-b     # Replace with your org/repo-b
+#          event-type: run_workflow           # Must match Repo B's event type
