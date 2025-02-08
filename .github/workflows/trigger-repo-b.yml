@@ -8,10 +8,10 @@ on:
 jobs:
   trigger:
     runs-on: ubuntu-latest
-    permissions:
-      # Grant write access to send repository_dispatch
-      actions: write
-      contents: read
+#    permissions:
+#      # Grant write access to send repository_dispatch
+#      actions: write
+#      contents: read
     steps:
         - name: Checkout
           uses: actions/checkout@v4
