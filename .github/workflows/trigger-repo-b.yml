@@ -20,10 +20,10 @@ jobs:
           uses: anothrNick/github-tag-action@1.67.0
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            DEFAULT_BUMP: patch
-        - name: Trigger Repo B
-          uses: peter-evans/repository-dispatch@v2
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
-            repository: my-org-mk/test-repo-b     # Replace with your org/repo-b
-            event-type: run_workflow           # Must match Repo B's event type
+#            DEFAULT_BUMP: patch
+#        - name: Trigger Repo B
+#          uses: peter-evans/repository-dispatch@v2
+#          with:
+#            token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
+#            repository: my-org-mk/test-repo-b     # Replace with your org/repo-b
+#            event-type: run_workflow           # Must match Repo B's event type
