@@ -7,8 +7,8 @@ on:
 
 jobs:
   trigger:
-    if: github.event.pull_request.merged == true
-    name: Bump Version and Tag
+    #if: ${{ github.event.pull_request.merged }}
+    name: Bump Version and Tag 2
     runs-on: ubuntu-latest
     permissions:
       # Grant write access to send repository_dispatch
