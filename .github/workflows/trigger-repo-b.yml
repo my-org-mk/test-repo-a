@@ -7,7 +7,7 @@ on:
 
 jobs:
   trigger:
-    if: ${{ github.event.pull_request.merged }}
+    #if: ${{ github.event.pull_request.merged }}
     name: Bump Version and Tag
     runs-on: ubuntu-latest
     permissions:
