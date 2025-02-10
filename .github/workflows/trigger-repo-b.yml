@@ -24,7 +24,7 @@ jobs:
 #            DEFAULT_BUMP: patch
         - name: run command
           run: |
-            echo {{ github.base_ref }} - {{github.ref}} - {{github.ref_name}}
+            echo $GITHUB_REF_NAME - $GITHUB_REF
 #        - name: Trigger Repo B
 #          uses: peter-evans/repository-dispatch@v2
 #          with:
