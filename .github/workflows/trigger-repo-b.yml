@@ -10,7 +10,7 @@ jobs:
     if: github.event.pull_request.merged == true
     name: Bump Version and Tag
     runs-on: ubuntu-latest
-     permissions:
+    permissions:
       # Grant write access to send repository_dispatch
 #      actions: write
       contents: write
