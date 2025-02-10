@@ -1,19 +1,17 @@
 name: Trigger Repo B Workflow
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: ['main']
 
 jobs:
   trigger:
-    if: github.event.pull_request.merged == true
-    name: Bump Version and Tag
+    name: Bump Version and {{T ag github.base_ref }} {{github.ref}} - {{github.ref_name}}
     runs-on: ubuntu-latest
-    permissions:
-      # Grant write access to send repository_dispatch
+#    permissions:
+#      # Grant write access to send repository_dispatch
 #      actions: write
-      contents: write
+#      contents: write
 
     steps:
         - name: Checkout
