@@ -1,9 +1,9 @@
 name: Post Merge Workflow
 
 on:
-  push:
-    branches:
-      - main  # or your target branch
+  pull_request_target:
+    branches: [main]
+    types: [closed]
 
 jobs:
   post_merge_status:
