@@ -8,6 +8,7 @@ on:
 jobs:
   post_merge_status:
     runs-on: ubuntu-latest
+    environment: dev1
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
