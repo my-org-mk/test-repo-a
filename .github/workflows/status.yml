@@ -1,0 +1,28 @@
+name: Post Merge Workflow
+
+on:
+  push:
+    branches:
+      - main  # or your target branch
+
+jobs:
+  post_merge_status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run custom task
+        run: |
+          echo "This workflow is reporting back to the PR."
+          # Simulate a task, this could be any command or script
+          
+      - name: Set output status
+        if: success()
+        run: |
+          echo "The post-merge task completed successfully."
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          echo "The task failed."
