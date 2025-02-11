@@ -1,12 +1,10 @@
 name: Trigger Repo B Workflow
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize]
+ push:
+   branches: [aaa]
+   
     
-    
-
 jobs:
   trigger:
     name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
