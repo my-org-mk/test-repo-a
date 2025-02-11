@@ -1,14 +1,17 @@
 name: Trigger Repo B Workflow
 
 on:
-  workflow_dispatch:
-  push:
-    branches: ['main']
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+    
+    
 
 jobs:
   trigger:
     name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
     runs-on: ubuntu-latest
+    environment: dev1
 #    permissions:
 #      # Grant write access to send repository_dispatch
 #      actions: write
