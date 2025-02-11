@@ -1,6 +1,7 @@
 name: Trigger Repo B Workflow
 
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
 
