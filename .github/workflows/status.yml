@@ -5,6 +5,7 @@ on:
     branches: [main]
     types: [closed]
 
+
 jobs:
   post_merge_status:
     runs-on: ubuntu-latest
