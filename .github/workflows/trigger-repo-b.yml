@@ -1,18 +1,22 @@
+
 name: Trigger Repo B Workflow
 
 on:
-  push:
-    branches: ['main']
+#  push:
+#    branches: ['main']
+   pull_request:          
+     branches: ['main']
+     types: [closed]
 
 jobs:
   trigger:
-    name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
+    if: github.event.pull_request.merged == true
+    name: Bump Version and Tag
     runs-on: ubuntu-latest
 #    permissions:
 #      # Grant write access to send repository_dispatch
 #      actions: write
 #      contents: write
-
     steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -31,3 +35,11 @@ jobs:
 #            token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
 #            repository: my-org-mk/test-repo-b     # Replace with your org/repo-b
 #            event-type: run_workflow           # Must match Repo B's event type
+  deploy:
+    needs: [trigger]
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy command
+        run: |
+            echo deploy command
