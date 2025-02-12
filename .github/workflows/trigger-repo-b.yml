@@ -70,6 +70,7 @@ jobs:
        token: ${{ steps.get-pat.outputs.value }}  # Uses the default token
        repository: my-org-mk/test-repo-b    # Replace with your org/repo-b
        event-type: run_workflow           # Must match Repo B's event type
+       
 #  comment-on-pr:
 #    needs: [trigger]
 #    runs-on: ubuntu-latest
