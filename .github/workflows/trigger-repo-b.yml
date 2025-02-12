@@ -18,14 +18,14 @@ jobs:
 #      actions: write
 #      contents: write
 
-    steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-        - name: Github Tag Bump
-          id: tag-bump
-          uses: anothrNick/github-tag-action@1.67.0
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
+#    steps:
+#        - name: Checkout
+#          uses: actions/checkout@v4
+#        - name: Github Tag Bump
+#          id: tag-bump
+#          uses: anothrNick/github-tag-action@1.67.0
+#          env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
   trigger-remote-workflow:
     needs: [trigger]
     runs-on:
@@ -52,24 +52,24 @@ jobs:
         pat="${{ steps.get-pat.outputs.value }}"
         echo "PAT length: ${#pat} characters"  # Count and print the length
 
-    - name: Trigger build and push in Envysion_client_local_db
-      run: |
-        curl -f -X POST \
-             -H "Authorization: Bearer ${{ steps.get-pat.outputs.value }}" \
-             -H "Accept: application/vnd.github+json" \
-             -d '{"event_type": "run_workflow"}' \
-             https://api.github.com/repos/my-org-mk/test-repo-b/dispatches
+#    - name: Trigger build and push in Envysion_client_local_db
+#      run: |
+#        curl -f -X POST \
+#             -H "Authorization: Bearer ${{ steps.get-pat.outputs.value }}" \
+#             -H "Accept: application/vnd.github+json" \
+#             -d '{"event_type": "run_workflow"}' \
+#             https://api.github.com/repos/my-org-mk/test-repo-b/dispatches
             
 #            DEFAULT_BUMP: patch
 #        - name: run command
 #          run: |
 #            echo $GITHUB_REF_NAME - $GITHUB_REF
-#        - name: Trigger Repo B
-#          uses: peter-evans/repository-dispatch@v2
-#          with:
-#            token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
-#            repository: my-org-mk/test-repo-b     # Replace with your org/repo-b
-#            event-type: run_workflow           # Must match Repo B's event type
+    - name: Trigger Repo B
+      uses: peter-evans/repository-dispatch@v2
+      with:
+       token: ${{ steps.get-pat.outputs.value }}  # Uses the default token
+       repository: my-org-mk/test-repo-b    # Replace with your org/repo-b
+       event-type: run_workflow           # Must match Repo B's event type
 #  comment-on-pr:
 #    needs: [trigger]
 #    runs-on: ubuntu-latest
