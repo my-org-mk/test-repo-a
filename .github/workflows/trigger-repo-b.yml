@@ -54,7 +54,7 @@ jobs:
 
     - name: Trigger build and push in Envysion_client_local_db
       run: |
-        curl -f -X POST 
+        curl -f -X POST \
              -H "Authorization: Bearer ${{ steps.get-pat.outputs.value }}" \
              -H "Accept: application/vnd.github+json" \
              -d '{"event_type": "build-trigger"}' \
