@@ -33,12 +33,11 @@ jobs:
     steps:
     - name: Get credentials
       id: get-pat
-      shell: bash
       run: |
         json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"${{ secrets.MY_SECRET_KEY }}\" }" | jq '.')
         pat=$(echo "$json" | jq -r '.token')        
-        echo "PAT length: ${#pat} characters"  # Print the length in one line
-        echo "value=$pat" >> "$GITHUB_OUTPUT"  # Set it as an output
+        echo "PAT length: ${#pat} characters"
+        echo "value=$pat" >> "$GITHUB_OUTPUT"
         echo "::add-mask::$pat"
 
     - name: Check PAT
@@ -46,7 +45,7 @@ jobs:
         pat="${{ steps.get-pat.outputs.value }}"
         echo "PAT length: ${#pat} characters"  # Count and print the length
 
-    - name: Trigger build and push in Envysion_client_local_db
+    - name: Trigger Repo B - 1
       run: |
         curl -f -X POST \
              -H "Authorization: Bearer ${{ steps.get-pat.outputs.value }}" \
@@ -58,12 +57,12 @@ jobs:
 #        - name: run command
 #          run: |
 #            echo $GITHUB_REF_NAME - $GITHUB_REF
-#    - name: Trigger Repo B
-#      uses: peter-evans/repository-dispatch@v2
-#     with:
-#       token: ${{ steps.get-pat.outputs.value }}  # Uses the default token
-#       repository: my-org-mk/test-repo-b    # Replace with your org/repo-b
-#       event-type: run_workflow           # Must match Repo B's event type
+    - name: Trigger Repo B - 2
+      uses: peter-evans/repository-dispatch@v2
+      with:
+       token: ${{ steps.get-pat.outputs.value }}  # Uses the default token
+       repository: my-org-mk/test-repo-b    # Replace with your org/repo-b
+       event-type: run_workflow           # Must match Repo B's event type
        
 #  comment-on-pr:
 #    needs: [trigger]
