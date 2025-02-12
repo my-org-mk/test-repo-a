@@ -9,10 +9,10 @@ on:
    
     
 jobs:
-  trigger:
-    name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
-    runs-on: ubuntu-latest
-    environment: dev1
+#  trigger:
+#    name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
+#    runs-on: ubuntu-latest
+#    environment: dev1
 #    permissions:
 #      # Grant write access to send repository_dispatch
 #      actions: write
@@ -27,7 +27,7 @@ jobs:
 #          env:
 #            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
   trigger-remote-workflow:
-    needs: [trigger]
+#    needs: [trigger]
     runs-on:
       labels: ubuntu-latest
     steps:
