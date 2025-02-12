@@ -3,8 +3,7 @@ name: Trigger Repo B Workflow
 on:
  pull_request:
   types: [opened, reopened, synchronize]
-   
-    
+  
 jobs:
   trigger:
     name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
