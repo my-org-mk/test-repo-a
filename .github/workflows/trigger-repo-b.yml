@@ -36,16 +36,10 @@ jobs:
       shell: bash
       run: |
         json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"${{ secrets.MY_SECRET_KEY }}"\" }" | jq '.')
-        pat=$(echo "$json" | jq -r '.token')
-        # pat="ghp_abc123\nxyz_456789"
+        pat=$(echo "$json" | jq -r '.token')        
         echo "PAT length: ${#pat} characters"  # Print the length in one line
         echo "value=$pat" >> "$GITHUB_OUTPUT"  # Set it as an output
         echo "::add-mask::$pat"
-        # {
-        #   echo "value<<EOF"
-        #   echo "$pat"
-        #   echo "EOF"
-        # } >> "$GITHUB_OUTPUT"
 
     - name: Check PAT
       run: |
