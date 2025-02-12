@@ -35,7 +35,7 @@ jobs:
       id: get-pat
       shell: bash
       run: |
-        json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"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\" }" | jq '.|fromjson')
+        json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"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\" }" | jq '.')
         pat=$(echo "$json" | jq -r '.token')
         # pat="ghp_abc123\nxyz_456789"
         echo "PAT length: ${#pat} characters"  # Print the length in one line
