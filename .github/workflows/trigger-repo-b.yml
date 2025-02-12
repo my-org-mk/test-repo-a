@@ -1,8 +1,11 @@
 name: Trigger Repo B Workflow
 
+#on:
+# pull_request:
+#  types: [opened, reopened, synchronize]
 on:
- pull_request:
-  types: [opened, reopened, synchronize]
+ push:
+  branches: [main]
    
     
 jobs:
@@ -23,23 +26,55 @@ jobs:
           uses: anothrNick/github-tag-action@1.67.0
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
+  trigger-remote-workflow:
+    needs: [trigger]
+    runs-on:
+      labels: ubuntu-latest
+    steps:
+    - name: Get credentials
+      id: get-pat
+      shell: bash
+      run: |
+        json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"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\" }" | jq '.|fromjson')
+        pat=$(echo "$json" | jq -r '.token')
+        # pat="ghp_abc123\nxyz_456789"
+        echo "PAT length: ${#pat} characters"  # Print the length in one line
+        echo "value=$pat" >> "$GITHUB_OUTPUT"  # Set it as an output
+        echo "::add-mask::$pat"
+        # {
+        #   echo "value<<EOF"
+        #   echo "$pat"
+        #   echo "EOF"
+        # } >> "$GITHUB_OUTPUT"
+
+    - name: Check PAT
+      run: |
+        pat="${{ steps.get-pat.outputs.value }}"
+        echo "PAT length: ${#pat} characters"  # Count and print the length
+
+    - name: Trigger build and push in Envysion_client_local_db
+      run: |
+        curl -f -X POST -H "Authorization: token ${{ steps.get-pat.outputs.value }}" \
+             -H "Accept: application/vnd.github.v3+json" \
+             -d '{"ref":"main"}' \
+             https://api.github.com/repos/my-org-mk/test-repo-b/.github/workflows/triggered-workflow.yml/dispatches
 #            DEFAULT_BUMP: patch
-        - name: run command
-          run: |
-            echo $GITHUB_REF_NAME - $GITHUB_REF
+#        - name: run command
+#          run: |
+#            echo $GITHUB_REF_NAME - $GITHUB_REF
 #        - name: Trigger Repo B
 #          uses: peter-evans/repository-dispatch@v2
 #          with:
 #            token: ${{ secrets.GITHUB_TOKEN }}  # Uses the default token
 #            repository: my-org-mk/test-repo-b     # Replace with your org/repo-b
 #            event-type: run_workflow           # Must match Repo B's event type
-  comment-on-pr:
-    needs: [trigger]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Add comment to PR
-        run: |
-          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-            -f body="🚀 Thank you for your pull request! We will review it soon."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  comment-on-pr:
+#    needs: [trigger]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Add comment to PR
+#        run: |
+#          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+#            -f body="🚀 Thank you for your pull request! We will review it soon."
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
