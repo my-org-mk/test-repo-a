@@ -35,7 +35,7 @@ jobs:
       id: get-pat
       shell: bash
       run: |
-        json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"${{ secrets.MY_SECRET_KEY }}"\" }" | jq '.')
+        json=$(echo "{ \"user\": \"ENVGIT_moto\", \"token\": \"${{ secrets.MY_SECRET_KEY }}\" }" | jq '.')
         pat=$(echo "$json" | jq -r '.token')        
         echo "PAT length: ${#pat} characters"  # Print the length in one line
         echo "value=$pat" >> "$GITHUB_OUTPUT"  # Set it as an output
