@@ -57,7 +57,7 @@ jobs:
         curl -f -X POST \
              -H "Authorization: Bearer ${{ steps.get-pat.outputs.value }}" \
              -H "Accept: application/vnd.github+json" \
-             -d '{"event_type": "build-trigger"}' \
+             -d '{"event_type": "run_workflow"}' \
              https://api.github.com/repos/my-org-mk/test-repo-b/dispatches
             
 #            DEFAULT_BUMP: patch
