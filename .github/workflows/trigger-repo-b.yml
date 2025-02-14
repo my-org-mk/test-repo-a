@@ -31,6 +31,9 @@ jobs:
     runs-on:
       labels: ubuntu-latest
     steps:
+    - name: Print brnach name
+      run: |
+       echo Current branch is: #{{ github.ref_name }}
     - name: Get credentials
       id: get-pat
       run: |
