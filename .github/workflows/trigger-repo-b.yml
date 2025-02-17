@@ -6,8 +6,6 @@ name: Trigger Repo B Workflow
 on:
  push:
   branches: [main]
-   
-    
 jobs:
 #  trigger:
 #    name: Bump Version and {{github. base_ref }} - {{github.ref}} - {{github.ref_name}}
