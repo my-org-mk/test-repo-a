@@ -91,10 +91,11 @@ jobs:
       run: |        
         echo "value=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)" >> $GITHUB_OUTPUT
 
-    - name: Set latest tag
+    - name: Tag latest major version
       if: steps.major_version.outputs.value != ''
-      run: |
-        git tag -f ${{ steps.major_version.outputs.value }}
-        git push origin ${{ steps.major_version.outputs.value }} --force
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MAJOR_TAG: ${{ steps.major_version.outputs.value }}
+      run: |
+        git tag -f ${{ env.MAJOR_TAG }}
+        git push origin ${{ env.MAJOR_TAG }} --force
+
