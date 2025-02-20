@@ -77,3 +77,24 @@ jobs:
 #            -f body="🚀 Thank you for your pull request! We will review it soon."
 #        env:
 #          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Bump version and create tag
+      id: tag_version
+      uses: anothrNick/github-tag-action@1.37.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract version number
+      id: extract_version
+      run: |
+        echo "::set-output name=MAJOR::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)"
+        echo "::set-output name=MINOR::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f2)"
+        echo "::set-output name=PATCH::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f3)"
+
+    - name: Update major version tag
+      if: steps.extract_version.outputs.PATCH == '0'
+      run: |
+        git tag -f ${MAJOR}
+        git push origin ${MAJOR} --force
+      env:
+        MAJOR: ${{ steps.extract_version.outputs.MAJOR }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
