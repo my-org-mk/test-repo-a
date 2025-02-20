@@ -85,7 +85,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
     
-    - name: Tag with latest major version
+    - name: Github Tag Bump Major
+      id: tag-bump-major
       if: steps.tag-bump.outputs.new_tag != ''
       run: |        
         major_tag=$(echo ${{ steps.tag-bump.outputs.new_tag }} | cut -d'.' -f1)
@@ -100,9 +101,9 @@ jobs:
         MAJOR_TAG: ${{ steps.major_version.outputs.value }}
       run: |
         if [ -n "${{ env.NEW_TAG }}" ]; then
-          echo Apppling ecr ${{ env.NEW_TAG }}
+          echo acr put ${{ env.NEW_TAG }}
         fi
         if [ -n "${{ env.MAJOR_TAG }}" ]; then
-          echo Apppling ecr ${{ env.MAJOR_TAG }}
+          echo acr put ${{ env.MAJOR_TAG }}
         fi
 
