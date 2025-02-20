@@ -84,14 +84,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Extract version number
+      if: steps.tag_version.outputs.new_tag != ''
       id: extract_version
       run: |
         echo "::set-output name=MAJOR::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)"
-        echo "::set-output name=MINOR::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f2)"
-        echo "::set-output name=PATCH::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f3)"
 
     - name: Update major version tag
-      if: steps.extract_version.outputs.PATCH == '0'
+      if: steps.tag_version.outputs.new_tag != ''
       run: |
         git tag -f ${MAJOR}
         git push origin ${MAJOR} --force
