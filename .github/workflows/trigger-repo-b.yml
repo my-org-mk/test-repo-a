@@ -85,18 +85,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract version number
+    - name: Get latest major version
       if: steps.tag_version.outputs.new_tag != ''
       id: major_version
-      run: |
-        #echo "::set-output name=MAJOR::$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)"
+      run: |        
         echo "value=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)" >> $GITHUB_OUTPUT
 
-    - name: Update major version tag
+    - name: Set latest tag
       if: steps.major_version.outputs.value != ''
       run: |
-        git tag -f ${MAJOR}
-        git push origin ${MAJOR} --force
+        git tag -f ${{ steps.major_version.outputs.value }}
+        git push origin ${{ steps.major_version.outputs.value }} --force
       env:
-        MAJOR: ${{ steps.major_version.outputs.value }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
