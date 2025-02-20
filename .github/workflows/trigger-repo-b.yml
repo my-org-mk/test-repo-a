@@ -79,23 +79,17 @@ jobs:
 #            -f body="🚀 Thank you for your pull request! We will review it soon."
 #        env:
 #          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Bump version and create tag
-      id: tag_version
-      uses: anothrNick/github-tag-action@1.37.0
+    - name: Github Tag Bump
+      id: tag-bump
+      uses: anothrNick/github-tag-action@1.67.0
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Get latest major version
-      if: steps.tag_version.outputs.new_tag != ''
-      id: major_version
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+    
+    - name: Tag with latest major version
+      if: steps.tag-bump.outputs.new_tag != ''
       run: |        
-        echo "value=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)" >> $GITHUB_OUTPUT
-
-    - name: Tag latest major version
-      if: steps.major_version.outputs.value != ''
-      env:
-        MAJOR_TAG: ${{ steps.major_version.outputs.value }}
-      run: |
-        git tag -f ${{ env.MAJOR_TAG }}
-        git push origin ${{ env.MAJOR_TAG }} --force
+        echo "major_tag=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d'.' -f1)" >> $GITHUB_OUTPUT
+        git tag -f $major_tag
+        git push origin $major_tag --force
+        echo "value=$major_tag" >> $GITHUB_OUTPUT
 
