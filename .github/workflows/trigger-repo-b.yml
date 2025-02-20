@@ -98,7 +98,7 @@ jobs:
       id: build-image
       env:
         NEW_TAG: ${{ steps.tag-bump.outputs.new_tag }}
-        MAJOR_TAG: ${{ steps.major_version.outputs.value }}
+        MAJOR_TAG: ${{ steps.tag-bump-major.outputs.value }}
       run: |
         if [ -n "${{ env.NEW_TAG }}" ]; then
           echo acr put ${{ env.NEW_TAG }}
