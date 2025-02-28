@@ -6,7 +6,7 @@ on:
       tasks:
         description: 'Comma-separated list of tasks'
         required: true
-        default: 'task1,task2,task3'  # Optional: Set a default value
+        default: 'task1,task2,task3,task1,task2,task3'  # Optional: Set a default value
 
 jobs:
   generate-matrix:
@@ -19,7 +19,8 @@ jobs:
         run: |
           # Use the input parameter 'tasks' as comma_separated_list
           comma_separated_list="${{ github.event.inputs.tasks }}"
-          json_array=$(echo -n "$comma_separated_list" | jq -R -s 'split(",")')
+          # Split into array, deduplicate, and convert back to JSON
+          json_array=$(echo -n "$comma_separated_list" | jq -R -s 'split(",") | unique')
           # Properly escape and format the JSON for GitHub Actions output
           echo "value=$(echo "$json_array" | jq -c .)" >> $GITHUB_OUTPUT
 
