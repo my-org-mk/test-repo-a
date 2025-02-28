@@ -1,0 +1,27 @@
+name: Dynamic Matrix Workflow
+
+on: [push]
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Generate a List
+        id: generate
+        run: echo 'MATRIX_LIST=["task1","task2","task3"]' >> $GITHUB_ENV
+
+      - name: Set Matrix Output
+        id: set-matrix
+        run: echo "matrix=$(echo $MATRIX_LIST | jq -c .)" >> $GITHUB_ENV
+
+  dynamic-matrix-job:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Process Task
+        run: echo "Processing task: ${{ matrix.task }}"
