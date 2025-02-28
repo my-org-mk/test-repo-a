@@ -27,6 +27,7 @@ jobs:
   dynamic-matrix-job:
     needs: generate-matrix
     runs-on: ubuntu-latest
+    environment: production
     strategy:
       max-parallel: 2  # Limit concurrent tasks to 2
       matrix:
