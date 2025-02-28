@@ -11,8 +11,9 @@ jobs:
       - name: Generate a List
         id: generate
         run: |
-          echo '["task1", "task2", "task3"]' > matrix.json  # Save list to file
-          echo "value='["task1", "task2", "task3"]'" >> $GITHUB_OUTPUT
+          # echo '["task1", "task2", "task3"]' > matrix.json  # Save list to file
+          # echo "value='["task1", "task2", "task3"]'" >> $GITHUB_OUTPUT
+          echo "value=$(echo '["task1", "task2", "task3"]' | jq -c .)" >> $GITHUB_OUTPUT 
 
       - name: Set Matrix Output
         id: set-matrix
