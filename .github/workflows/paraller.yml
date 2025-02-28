@@ -12,10 +12,7 @@ jobs:
         id: generate
         run: |
           comma_separated_list="task1,task2,task3"
-          json_array=$(echo -n "$comma_separated_list" | jq -R -s 'split(",")')
-          echo $json_array
-          echo "value=$json_array" >> $GITHUB_OUTPUT 
-
+          echo 'value=$(echo -n "$comma_separated_list" | jq -R -s 'split(",")')' >> $GITHUB_OUTPUT
 
   dynamic-matrix-job:
     needs: generate-matrix
