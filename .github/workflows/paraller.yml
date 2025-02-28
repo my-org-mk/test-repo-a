@@ -24,4 +24,4 @@ jobs:
         task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}  # Correctly parse JSON
     steps:
       - name: Process Task
-        run: echo "Processing task: ${{ matrix.task }}"
+        run: echo 'Processing task: ${{ matrix.task }}'
