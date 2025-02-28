@@ -12,7 +12,8 @@ jobs:
         id: generate
         run: |
           comma_separated_list="task1,task2,task3"
-          json_array=$(echo "$comma_separated_list" | jq -R -s 'split(",")')
+          json_array=$(echo -n "$comma_separated_list" | jq -R -s 'split(",")')
+          echo $json_array
           echo "value=$json_array" >> $GITHUB_OUTPUT 
 
 
