@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        task: ${{ needs.generate-matrix.outputs.matrix }}  # Use raw comma-separated list directly
+        task: ${{ fromJson('["' + needs.generate-matrix.outputs.matrix | replace(',', '","') + '"]') }}  # Convert comma-separated list to JSON array
     steps:
       - name: Process Task
-        run: echo "Processing task ${{ matrix.task }}"
+        run: echo "Processing task: ${{ matrix.task }}"
