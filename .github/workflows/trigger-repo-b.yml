@@ -1,11 +1,11 @@
 name: Trigger Repo B Workflow
 
-#on:
-# pull_request:
-#  types: [opened, reopened, synchronize]
 on:
- push:
-  branches: [main]
+ pull_request:
+  types: [opened, reopened, synchronize]
+#on:
+# push:
+#  branches: [main]
    
     
 jobs:
