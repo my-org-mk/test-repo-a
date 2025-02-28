@@ -8,20 +8,20 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}  # Reference step output correctly
     steps:
-      - name: Generate a Comma-Separated List
+      - name: Generate a List
         id: generate
-        run: echo "task1,task2,task3" > matrix.txt  # Save comma-separated tasks to a file
+        run: echo '["task1", "task2", "task3"]' > matrix.json  # Save list to file
 
       - name: Set Matrix Output
         id: set-matrix
-        run: echo "::set-output name=matrix::$(cat matrix.txt)"  # Set output as comma-separated list
+        run: echo "::set-output name=matrix::$(jq -c . matrix.json)"  # Set output properly
 
   dynamic-matrix-job:
     needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        task: ${{ fromJson('["' + needs.generate-matrix.outputs.matrix | replace(',', '","') + '"]') }}  # Convert comma-separated list to JSON array
+        task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}  # Correctly parse JSON
     steps:
       - name: Process Task
-        run: echo "Processing task ${{ matrix.task }}"
+        run: echo "Processing task: ${{ matrix.task }}"
