@@ -28,9 +28,12 @@ jobs:
     needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 2  # Limit concurrent tasks to 2
       matrix:
         task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}  # Correctly parse JSON
     steps:
       - name: Process Task
         run: |
           echo "Processing task: ${{ matrix.task }}"
+          sleep 20
+          echo "Processed task: ${{ matrix.task }}"
