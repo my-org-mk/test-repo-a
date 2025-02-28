@@ -11,13 +11,10 @@ jobs:
       - name: Generate a List
         id: generate
         run: |
-          # echo '["task1", "task2", "task3"]' > matrix.json  # Save list to file
-          # echo "value='["task1", "task2", "task3"]'" >> $GITHUB_OUTPUT
-          echo "value=$(echo '["task1", "task2", "task3"]' | jq -c .)" >> $GITHUB_OUTPUT 
+          comma_separated_list="task1,task2,task3"
+          json_array=$(echo "$comma_separated_list" | jq -R -s 'split(",")')
+          echo "value=$json_array" >> $GITHUB_OUTPUT 
 
-      - name: Set Matrix Output
-        id: set-matrix
-        run: echo "::set-output name=matrix::$(jq -c . matrix.json)"  # Set output properly
 
   dynamic-matrix-job:
     needs: generate-matrix
