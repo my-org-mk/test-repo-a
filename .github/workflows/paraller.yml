@@ -6,26 +6,22 @@ jobs:
   generate-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}  # Correct output reference
+      matrix: ${{ steps.set-matrix.outputs.matrix }}  # Reference step output correctly
     steps:
       - name: Generate a List
         id: generate
-        run: echo '["task1", "task2", "task3"]' > matrix.json  # Create JSON file
+        run: echo '["task1", "task2", "task3"]' > matrix.json  # Save list to file
 
       - name: Set Matrix Output
         id: set-matrix
-        run: echo "matrix=$(jq -c . matrix.json)" >> $GITHUB_ENV
-
-      - name: Export Output Properly
-        id: export-matrix
-        run: echo "::set-output name=matrix::$(jq -c . matrix.json)"  # Proper output format
+        run: echo "::set-output name=matrix::$(jq -c . matrix.json)"  # Set output properly
 
   dynamic-matrix-job:
     needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}  # Correct JSON conversion
+        task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}  # Correctly parse JSON
     steps:
       - name: Process Task
         run: |
