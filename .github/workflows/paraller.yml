@@ -7,6 +7,24 @@ on:
         description: 'Comma-separated list of tasks'
         required: true
         default: 'task1,task2,task3,task1,task2,task3'  # Optional: Set a default value
+      branch:
+        description: 'Select an environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+        default: 'dev'  # Optional: Set a default value
+      action:
+        description: 'Select an action'
+        required: true
+        type: choice
+        options:
+          - migrate
+          - repair
+          - info
+        default: 'migrate'  # Optional: Set a default value
 
 jobs:
   generate-matrix:
