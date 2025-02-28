@@ -10,14 +10,14 @@ jobs:
     steps:
       - name: Generate a Comma-Separated List
         id: generate
-        run: echo "value=task1,task2,task3" >> $GITHUB_OUTPUT
+        run: echo "value=task1,task2,task3" >> $GITHUB_OUTPUT  # Set the list to the output variable
 
   dynamic-matrix-job:
     needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        task: ${{ needs.generate-matrix.outputs.matrix }}  # Use raw comma-separated list directly
+        task: ${{ fromJson('["' + needs.generate-matrix.outputs.matrix | replace(',', '","') + '"]') }}  # Convert the comma-separated string into a JSON array
     steps:
       - name: Process Task
-        run: echo Processing task ${{ matrix.task }}
+        run: echo "Processing task ${{ matrix.task }}"
