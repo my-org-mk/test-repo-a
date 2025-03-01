@@ -22,7 +22,6 @@ jobs:
           
           # Output matrix for strategy
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
-          ls -al
         shell: bash
 
     outputs:
@@ -35,13 +34,8 @@ jobs:
       matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
       max-parallel: 2
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
       - name: Process Task
         run: |
           echo "Processing task: ${{ matrix.task }}"
-          ls -al
-          sleep 1s
         shell: bash
       # Add more steps here as needed
