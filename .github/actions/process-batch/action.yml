@@ -8,19 +8,23 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Process Tasks in Batch
+    - name: Generate task matrix
+      id: generate-matrix
       run: |
+        # Split batch tasks into array
         IFS=',' read -r -a tasks <<< "${{ inputs.batch_tasks }}"
-        pids=()
-        for task in "${tasks[@]}"; do
-          (
-            echo "Processing task: $task"
-            ls -al
-            sleep 1s
-          ) &
-          pids+=($!)
-        done
-        for pid in "${pids[@]}"; do
-          wait "$pid"
-        done
+        MATRIX_JSON=$(printf '%s\n' "${tasks[@]}" | jq -R . | jq -s '{ "task": . }' -c)
+        echo "Generated task matrix: $MATRIX_JSON"
+        
+        # Output matrix for strategy
+        echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
       shell: bash
+    - name: Process Task
+      strategy:
+      matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
+      run: |
+        echo "Processing task: ${{ matrix.task }}"
+        ls -al
+        sleep 1s
+      shell: bash
+      # Add more steps here as needed
