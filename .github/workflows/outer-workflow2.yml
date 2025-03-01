@@ -1,4 +1,4 @@
-name: Outer Task Workflow
+name: Outer Task Workflow 2
 
 on:
   workflow_dispatch:
@@ -50,10 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        
+    steps:        
       - name: Process batch
         uses: ./.github/actions/process-batch
         with:
