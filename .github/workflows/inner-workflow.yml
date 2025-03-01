@@ -36,7 +36,7 @@ jobs:
       - name: Process Task
         run: |
           echo "Processing task: ${{ matrix.task }}"
-          ls
+          ls -al
           sleep 1s
         shell: bash
       # Add more steps here as needed
