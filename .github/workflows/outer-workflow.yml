@@ -47,6 +47,7 @@ jobs:
         shell: bash
 
   process-batches:
+    name: process-batches
     needs: split-and-dispatch
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
