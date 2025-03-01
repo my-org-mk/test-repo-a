@@ -1,0 +1,60 @@
+name: Outer Task Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_names:
+        description: 'Comma-separated list of task names (e.g., task1, task2, task3)'
+        required: true
+
+jobs:
+  split-and-dispatch:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-batches.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Generate batch matrix
+        id: generate-batches
+        run: |
+          TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
+          IFS=',' read -r -a tasks <<< "$TASKS_INPUT"
+          
+          MAX_TASKS=2
+          TOTAL_TASKS=${#tasks[@]}
+          BATCHES=$(( (TOTAL_TASKS + MAX_TASKS - 1) / MAX_TASKS ))
+
+          MATRIX_JSON='{"batch":['
+          for ((i=0; i<BATCHES; i++)); do
+            START=$((i * MAX_TASKS))
+            END=$((START + MAX_TASKS))
+            if [ $END -gt $TOTAL_TASKS ]; then
+              END=$TOTAL_TASKS
+            fi
+            BATCH_TASKS=("${tasks[@]:$START:$MAX_TASKS}")
+            BATCH_TASKS_STR=$(IFS=','; echo "${BATCH_TASKS[*]}")
+            MATRIX_JSON="$MATRIX_JSON\"$BATCH_TASKS_STR\""
+            [ $i -lt $((BATCHES - 1)) ] && MATRIX_JSON="$MATRIX_JSON,"
+          done
+          MATRIX_JSON="$MATRIX_JSON]}"
+          
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          echo "Generated batch matrix: $MATRIX_JSON"
+          ls -al
+        shell: bash
+
+  process-batches:
+    needs: split-and-dispatch
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Process batch
+        uses: ./.github/actions/process-batch
+        with:
+          batch_tasks: ${{ matrix.batch }}
