@@ -13,6 +13,9 @@ jobs:
     outputs:
       matrix: ${{ steps.generate-batches.outputs.matrix }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Moved here from outer workflow
+        
       - name: Generate batch matrix
         id: generate-batches
         run: |
