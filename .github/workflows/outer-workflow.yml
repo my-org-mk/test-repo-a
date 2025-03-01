@@ -24,7 +24,7 @@ jobs:
           TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
           IFS=',' read -r -a tasks <<< "$TASKS_INPUT"
           
-          MAX_TASKS=2
+          MAX_TASKS=256
           TOTAL_TASKS=${#tasks[@]}
           BATCHES=$(( (TOTAL_TASKS + MAX_TASKS - 1) / MAX_TASKS ))  # Ceiling division
           # Generate matrix for batches
