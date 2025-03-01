@@ -30,12 +30,18 @@ jobs:
   execute-tasks:
     needs: process-batch
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
-      max-parallel: 2
+    #strategy:
+    #  matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
+    #  max-parallel: 2
     steps:
-      - name: Process Task
+      #- name: Process Task
+      #  run: |
+      #    echo "Processing task: ${{ matrix.task }}"
+      #  shell: bash
+      - name: Process Each Task
         run: |
-          echo "Processing task: ${{ matrix.task }}"
+          for task in "${{ fromJson(steps.generate-matrix.outputs.matrix).task }}"; do
+            echo "Processing task: $task"            
+          done
         shell: bash
       # Add more steps here as needed
