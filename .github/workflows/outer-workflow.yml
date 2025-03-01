@@ -13,10 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.generate-batches.outputs.matrix }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4  # Moved here from outer workflow
-        
+    steps:        
       - name: Generate batch matrix
         id: generate-batches
         run: |
@@ -45,7 +42,6 @@ jobs:
           # Output matrix for strategy
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
           echo "Generated batch matrix: $MATRIX_JSON"
-          ls -al
         shell: bash
 
   process-batches:
