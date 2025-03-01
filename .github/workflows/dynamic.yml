@@ -1,0 +1,83 @@
+name: Dynamic Task Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_names:
+        description: 'Comma-separated list of task names (e.g., task1, task2, task3)'
+        required: true
+      batch_index:
+        description: 'Optional batch index for splitting tasks (default: 0)'
+        default: '0'
+        required: false
+
+jobs:
+  split-and-dispatch:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      should_dispatch: ${{ steps.check-dispatch.outputs.should_dispatch }}
+    steps:
+      - name: Generate task matrix and check for additional batches
+        id: generate-matrix
+        run: |
+          # Convert comma-separated input into an array
+          IFS=',' read -r -a tasks <<< "${{ github.event.inputs.task_names }}"
+
+          # Define max tasks per run (GitHub matrix limit)
+          MAX_TASKS=256
+          TOTAL_TASKS=${#tasks[@]}
+          BATCH_INDEX=${{ github.event.inputs.batch_index }}
+          START=$((BATCH_INDEX * MAX_TASKS))
+          END=$((START + MAX_TASKS))
+
+          # Adjust end if it exceeds total tasks
+          if [ $END -gt $TOTAL_TASKS ]; then
+            END=$TOTAL_TASKS
+          fi
+
+          # Extract tasks for this batch
+          BATCH_TASKS=("${tasks[@]:$START:$MAX_TASKS}")
+          MATRIX_JSON=$(printf '%s\n' "${BATCH_TASKS[@]}" | jq -R . | jq -s '{"task":.}')
+
+          # Output the matrix for this batch
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+          # Check if more batches are needed
+          if [ $END -lt $TOTAL_TASKS ]; then
+            echo "should_dispatch=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_dispatch=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Dispatch next batch if needed
+        if: steps.generate-matrix.outputs.should_dispatch == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEXT_BATCH=$(( ${{ github.event.inputs.batch_index }} + 1 ))
+          gh workflow run "${{ github.workflow }}" \
+            -f task_names="${{ github.event.inputs.task_names }}" \
+            -f batch_index="$NEXT_BATCH" \
+            --ref "${{ github.ref }}"
+        shell: bash
+
+  process-tasks:
+    needs: split-and-dispatch
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
+    steps:
+      - name: Print task name
+        run: |
+          echo "Processing task: ${{ matrix.task }}"
+          sleep 1s
+        shell: bash
+
+      # Add more steps here as needed
+      # Example placeholder for additional steps:
+      # - name: Additional Step
+      #   run: |
+      #     echo "Doing something else with ${{ matrix.task }}"
+      #     sleep 1s
