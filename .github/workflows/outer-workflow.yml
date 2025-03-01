@@ -45,6 +45,7 @@ jobs:
           # Output matrix for strategy
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
           echo "Generated batch matrix: $MATRIX_JSON"
+          ls -al
         shell: bash
 
   process-batches:
