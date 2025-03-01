@@ -22,7 +22,9 @@ jobs:
       - name: Generate task matrix and check for additional batches
         id: generate-matrix
         run: |
-          IFS=',' read -r -a tasks <<< "${{ github.event.inputs.task_names }}"
+          # Remove leading/trailing spaces from input and split on comma
+          TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
+          IFS=',' read -r -a tasks <<< "$TASKS_INPUT"
           MAX_TASKS=256
           TOTAL_TASKS=${#tasks[@]}
           BATCH_INDEX=${{ github.event.inputs.batch_index }}
@@ -36,19 +38,17 @@ jobs:
           # Extract tasks for this batch
           BATCH_TASKS=("${tasks[@]:$START:$MAX_TASKS}")
 
-          # Generate JSON matrix with proper formatting
-          MATRIX_JSON=$(printf '%s\n' "${BATCH_TASKS[@]}" | jq -R . | jq -s '{ "task": . }')
+          # Generate JSON matrix as a single-line string
+          MATRIX_JSON=$(printf '%s\n' "${BATCH_TASKS[@]}" | jq -R . | jq -s '{ "task": . }' -c)
           echo "Generated matrix: $MATRIX_JSON"
 
-          # Write to GITHUB_OUTPUT
-          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
-
-          # Check if more batches are needed
-          if [ $END -lt $TOTAL_TASKS ]; then
-            echo "should_dispatch=true" >> $GITHUB_OUTPUT
-          else
-            echo "should_dispatch=false" >> $GITHUB_OUTPUT
-          fi
+          # Write multi-line or complex output using EOF delimiter
+          cat <<EOF >> $GITHUB_OUTPUT
+          matrix<<DELIMITER
+          $MATRIX_JSON
+          DELIMITER
+          should_dispatch=$( [ $END -lt $TOTAL_TASKS ] && echo "true" || echo "false" )
+          EOF
         shell: bash
 
       - name: Dispatch next batch and get run ID
