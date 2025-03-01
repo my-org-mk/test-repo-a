@@ -1,0 +1,26 @@
+name: 'Process Batch Action'
+description: 'Processes a batch of tasks in parallel'
+inputs:
+  batch_tasks:
+    description: 'Comma-separated list of tasks for this batch'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Process Tasks in Batch
+      run: |
+        IFS=',' read -r -a tasks <<< "${{ inputs.batch_tasks }}"
+        pids=()
+        for task in "${tasks[@]}"; do
+          (
+            echo "Processing task: $task"
+            ls -al
+            sleep 1s
+          ) &
+          pids+=($!)
+        done
+        for pid in "${pids[@]}"; do
+          wait "$pid"
+        done
+      shell: bash
