@@ -19,12 +19,15 @@ jobs:
       should_dispatch: ${{ steps.generate-matrix.outputs.should_dispatch }}
       next_workflow_run_id: ${{ steps.dispatch-next-batch.outputs.workflow_run_id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Ensures the repo is checked out
+
       - name: Generate task matrix and check for additional batches
         id: generate-matrix
         run: |
           TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
           IFS=',' read -r -a tasks <<< "$TASKS_INPUT"
-          MAX_TASKS=2  # Changed to 2 as per your test
+          MAX_TASKS=2  # Set to 2 as per your test
           TOTAL_TASKS=${#tasks[@]}
           BATCH_INDEX=${{ github.event.inputs.batch_index }}
           START=$((BATCH_INDEX * MAX_TASKS))
@@ -53,14 +56,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEXT_BATCH=$(( ${{ github.event.inputs.batch_index }} + 1 ))
-          # Dispatch the workflow without --json
           gh workflow run "${{ github.workflow }}" \
             -f task_names="${{ github.event.inputs.task_names }}" \
             -f batch_index="$NEXT_BATCH" \
             --ref "${{ github.ref }}"
           
-          # Wait briefly and get the latest run ID
-          sleep 2s  # Give GitHub a moment to register the run
+          sleep 2s  # Give GitHub time to register the run
           RUN_ID=$(gh run list \
             --workflow="${{ github.workflow }}" \
             --branch="${{ github.ref_name }}" \
