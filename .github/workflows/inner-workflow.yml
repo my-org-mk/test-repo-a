@@ -15,19 +15,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-
-      - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Assume to silo
-        uses: msicie/Envysion_devops_shared-actions/assume-silo-role@v1
-        with:
-          silo: ${{ vars.SILO }}
       - name: Generate task matrix
         id: generate-matrix
         run: |
