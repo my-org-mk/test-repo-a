@@ -48,6 +48,6 @@ jobs:
     needs: split-and-dispatch
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
-    uses: ./.github/workflows/inner-workflow.yml@main  # Moved uses to job level
+    uses: ./.github/workflows/inner-workflow.yml  # Moved uses to job level
     with:
       batch_tasks: ${{ matrix.batch }}
