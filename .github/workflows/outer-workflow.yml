@@ -1,3 +1,4 @@
+
 name: Outer Task Workflow
 
 on:
@@ -14,19 +15,19 @@ jobs:
       matrix: ${{ steps.generate-batches.outputs.matrix }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Moved here from outer workflow
         
       - name: Generate batch matrix
         id: generate-batches
         run: |
+          # Remove whitespace from input and split into array
           TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
           IFS=',' read -r -a tasks <<< "$TASKS_INPUT"
           
           MAX_TASKS=2
           TOTAL_TASKS=${#tasks[@]}
-          BATCHES=$(( (TOTAL_TASKS + MAX_TASKS - 1) / MAX_TASKS ))
-
-          # Generate matrix with batch tasks and task count
+          BATCHES=$(( (TOTAL_TASKS + MAX_TASKS - 1) / MAX_TASKS ))  # Ceiling division
+          # Generate matrix for batches
           MATRIX_JSON='{"batch":['
           for ((i=0; i<BATCHES; i++)); do
             START=$((i * MAX_TASKS))
@@ -36,21 +37,22 @@ jobs:
             fi
             BATCH_TASKS=("${tasks[@]:$START:$MAX_TASKS}")
             BATCH_TASKS_STR=$(IFS=','; echo "${BATCH_TASKS[*]}")
-            TASK_COUNT=${#BATCH_TASKS[@]}
-            MATRIX_JSON="$MATRIX_JSON{\"tasks\":\"$BATCH_TASKS_STR\",\"count\":$TASK_COUNT}"
+            MATRIX_JSON="$MATRIX_JSON\"$BATCH_TASKS_STR\""
             [ $i -lt $((BATCHES - 1)) ] && MATRIX_JSON="$MATRIX_JSON,"
           done
           MATRIX_JSON="$MATRIX_JSON]}"
           
+          # Output matrix for strategy
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
           echo "Generated batch matrix: $MATRIX_JSON"
+          ls -al
         shell: bash
 
   process-batches:
-    name: process-batches
     needs: split-and-dispatch
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
-    uses: ./.github/workflows/inner-workflow.yml
+    uses: ./.github/workflows/inner-workflow.yml  # Moved uses to job level
+    concurrency: "1"
     with:
-      batch_tasks: ${{ matrix.tasks }}
+      batch_tasks: ${{ matrix.batch }}
