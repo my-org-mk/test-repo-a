@@ -22,10 +22,9 @@ jobs:
       - name: Generate task matrix and check for additional batches
         id: generate-matrix
         run: |
-          # Remove leading/trailing spaces from input and split on comma
           TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
           IFS=',' read -r -a tasks <<< "$TASKS_INPUT"
-          MAX_TASKS=2
+          MAX_TASKS=2  # Changed to 2 as per your test
           TOTAL_TASKS=${#tasks[@]}
           BATCH_INDEX=${{ github.event.inputs.batch_index }}
           START=$((BATCH_INDEX * MAX_TASKS))
@@ -35,14 +34,10 @@ jobs:
             END=$TOTAL_TASKS
           fi
 
-          # Extract tasks for this batch
           BATCH_TASKS=("${tasks[@]:$START:$MAX_TASKS}")
-
-          # Generate JSON matrix as a single-line string
           MATRIX_JSON=$(printf '%s\n' "${BATCH_TASKS[@]}" | jq -R . | jq -s '{ "task": . }' -c)
           echo "Generated matrix: $MATRIX_JSON"
 
-          # Write multi-line or complex output using EOF delimiter
           cat <<EOF >> $GITHUB_OUTPUT
           matrix<<DELIMITER
           $MATRIX_JSON
@@ -58,10 +53,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEXT_BATCH=$(( ${{ github.event.inputs.batch_index }} + 1 ))
-          RUN_ID=$(gh workflow run "${{ github.workflow }}" \
+          # Dispatch the workflow without --json
+          gh workflow run "${{ github.workflow }}" \
             -f task_names="${{ github.event.inputs.task_names }}" \
             -f batch_index="$NEXT_BATCH" \
-            --ref "${{ github.ref }}" --json | jq -r '.id')
+            --ref "${{ github.ref }}"
+          
+          # Wait briefly and get the latest run ID
+          sleep 2s  # Give GitHub a moment to register the run
+          RUN_ID=$(gh run list \
+            --workflow="${{ github.workflow }}" \
+            --branch="${{ github.ref_name }}" \
+            --limit 1 \
+            --json databaseId | jq -r '.[0].databaseId')
           echo "Dispatched workflow run ID: $RUN_ID"
           echo "workflow_run_id=$RUN_ID" >> $GITHUB_OUTPUT
         shell: bash
