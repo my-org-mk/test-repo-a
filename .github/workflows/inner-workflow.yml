@@ -1,11 +1,12 @@
 name: Inner Task Workflow
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       batch_tasks:
         description: 'Comma-separated list of tasks for this batch'
         required: true
+        type: string
 
 jobs:
   process-batch:
@@ -15,7 +16,7 @@ jobs:
         id: generate-matrix
         run: |
           # Split batch tasks into array
-          IFS=',' read -r -a tasks <<< "${{ github.event.inputs.batch_tasks }}"
+          IFS=',' read -r -a tasks <<< "${{ inputs.batch_tasks }}"
           MATRIX_JSON=$(printf '%s\n' "${tasks[@]}" | jq -R . | jq -s '{ "task": . }' -c)
           echo "Generated task matrix: $MATRIX_JSON"
           
