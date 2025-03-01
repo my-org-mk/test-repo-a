@@ -50,6 +50,7 @@ jobs:
 
   process-batches:
     needs: split-and-dispatch
+    name: process-batches
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
       max-parallel: 1
