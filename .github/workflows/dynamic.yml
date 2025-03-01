@@ -16,31 +16,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
-      should_dispatch: ${{ steps.check-dispatch.outputs.should_dispatch }}
+      should_dispatch: ${{ steps.generate-matrix.outputs.should_dispatch }}
+      next_workflow_run_id: ${{ steps.dispatch-next-batch.outputs.workflow_run_id }}
     steps:
       - name: Generate task matrix and check for additional batches
         id: generate-matrix
         run: |
-          # Convert comma-separated input into an array
           IFS=',' read -r -a tasks <<< "${{ github.event.inputs.task_names }}"
-
-          # Define max tasks per run (GitHub matrix limit)
           MAX_TASKS=256
           TOTAL_TASKS=${#tasks[@]}
           BATCH_INDEX=${{ github.event.inputs.batch_index }}
           START=$((BATCH_INDEX * MAX_TASKS))
           END=$((START + MAX_TASKS))
 
-          # Adjust end if it exceeds total tasks
           if [ $END -gt $TOTAL_TASKS ]; then
             END=$TOTAL_TASKS
           fi
 
           # Extract tasks for this batch
           BATCH_TASKS=("${tasks[@]:$START:$MAX_TASKS}")
-          MATRIX_JSON=$(printf '%s\n' "${BATCH_TASKS[@]}" | jq -R . | jq -s '{"task":.}')
 
-          # Output the matrix for this batch
+          # Generate JSON matrix with proper formatting
+          MATRIX_JSON=$(printf '%s\n' "${BATCH_TASKS[@]}" | jq -R . | jq -s '{ "task": . }')
+          echo "Generated matrix: $MATRIX_JSON"
+
+          # Write to GITHUB_OUTPUT
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
 
           # Check if more batches are needed
@@ -51,16 +51,43 @@ jobs:
           fi
         shell: bash
 
-      - name: Dispatch next batch if needed
+      - name: Dispatch next batch and get run ID
+        id: dispatch-next-batch
         if: steps.generate-matrix.outputs.should_dispatch == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEXT_BATCH=$(( ${{ github.event.inputs.batch_index }} + 1 ))
-          gh workflow run "${{ github.workflow }}" \
+          RUN_ID=$(gh workflow run "${{ github.workflow }}" \
             -f task_names="${{ github.event.inputs.task_names }}" \
             -f batch_index="$NEXT_BATCH" \
-            --ref "${{ github.ref }}"
+            --ref "${{ github.ref }}" --json | jq -r '.id')
+          echo "Dispatched workflow run ID: $RUN_ID"
+          echo "workflow_run_id=$RUN_ID" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Wait for dispatched workflow to complete
+        if: steps.generate-matrix.outputs.should_dispatch == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID=${{ steps.dispatch-next-batch.outputs.workflow_run_id }}
+          echo "Waiting for workflow run $RUN_ID to complete..."
+          while true; do
+            STATUS=$(gh run view "$RUN_ID" --repo "${{ github.repository }}" --json conclusion,status | jq -r '.status')
+            CONCLUSION=$(gh run view "$RUN_ID" --repo "${{ github.repository }}" --json conclusion,status | jq -r '.conclusion')
+            echo "Current status: $STATUS, conclusion: $CONCLUSION"
+            if [ "$STATUS" = "completed" ]; then
+              if [ "$CONCLUSION" = "success" ]; then
+                echo "Dispatched workflow completed successfully."
+                exit 0
+              else
+                echo "Dispatched workflow failed with conclusion: $CONCLUSION"
+                exit 1
+              fi
+            fi
+            sleep 10s
+          done
         shell: bash
 
   process-tasks:
@@ -74,10 +101,3 @@ jobs:
           echo "Processing task: ${{ matrix.task }}"
           sleep 1s
         shell: bash
-
-      # Add more steps here as needed
-      # Example placeholder for additional steps:
-      # - name: Additional Step
-      #   run: |
-      #     echo "Doing something else with ${{ matrix.task }}"
-      #     sleep 1s
