@@ -21,7 +21,7 @@ runs:
       shell: bash
     - name: Process Task
       strategy:
-      matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       run: |
         echo "Processing task: ${{ matrix.task }}"
         ls -al
