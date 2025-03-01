@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
+    name: ${{ matrix.task }}
     concurrency: "2"
     steps:
       - name: Checkout
