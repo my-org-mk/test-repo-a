@@ -46,11 +46,8 @@ jobs:
 
   process-batches:
     needs: split-and-dispatch
-    runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
-    steps:
-      - name: Call Inner Workflow for Batch
-        uses: ./.github/workflows/inner-workflow.yml@main
-        with:
-          batch_tasks: ${{ matrix.batch }}
+    uses: ./.github/workflows/inner-workflow.yml@main  # Moved uses to job level
+    with:
+      batch_tasks: ${{ matrix.batch }}
