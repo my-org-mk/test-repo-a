@@ -10,14 +10,14 @@ on:
 jobs:
   split-and-dispatch:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-batches.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate batch matrix and dispatch inner workflows
+      - name: Generate batch matrix
         id: generate-batches
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Remove whitespace from input and split into array
           TASKS_INPUT=$(echo "${{ github.event.inputs.task_names }}" | tr -d '[:space:]')
@@ -47,23 +47,13 @@ jobs:
           echo "Generated batch matrix: $MATRIX_JSON"
         shell: bash
 
-    outputs:
-      matrix: ${{ steps.generate-batches.outputs.matrix }}
-
-  dispatch-inner:
+  process-batches:
     needs: split-and-dispatch
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Dispatch Inner Workflow for Batch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run "Inner Task Workflow" \
-            -f batch_tasks="${{ matrix.batch }}" \
-            --ref "${{ github.ref }}"
-        shell: bash
+      - name: Call Inner Workflow for Batch
+        uses: ./.github/workflows/inner-workflow.yml
+        with:
+          batch_tasks: ${{ matrix.batch }}
