@@ -1,0 +1,40 @@
+name: Inner Task Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_tasks:
+        description: 'Comma-separated list of tasks for this batch'
+        required: true
+
+jobs:
+  process-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate task matrix
+        id: generate-matrix
+        run: |
+          # Split batch tasks into array
+          IFS=',' read -r -a tasks <<< "${{ github.event.inputs.batch_tasks }}"
+          MATRIX_JSON=$(printf '%s\n' "${tasks[@]}" | jq -R . | jq -s '{ "task": . }' -c)
+          echo "Generated task matrix: $MATRIX_JSON"
+          
+          # Output matrix for strategy
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+        shell: bash
+
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+
+  execute-tasks:
+    needs: process-batch
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.process-batch.outputs.matrix) }}
+    steps:
+      - name: Process Task
+        run: |
+          echo "Processing task: ${{ matrix.task }}"
+          sleep 1s
+        shell: bash
+      # Add more steps here as needed
