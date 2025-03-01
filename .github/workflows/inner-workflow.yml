@@ -40,8 +40,12 @@ jobs:
       #  shell: bash
       - name: Process Each Task
         run: |
-          for task in "${{ fromJson(steps.generate-matrix.outputs.matrix).task }}"; do
-            echo "Processing task: $task"            
+          TASKS=$(echo '${{ needs.process-batch.outputs.matrix }}' | jq -r '.task[]')
+          for task in $TASKS; do
+            echo "Processing task: $task"
           done
+#          for task in "${{ fromJson(steps.generate-matrix.outputs.matrix).task }}"; do
+#            echo "Processing task: $task"            
+#         done
         shell: bash
       # Add more steps here as needed
