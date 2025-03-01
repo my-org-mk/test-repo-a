@@ -48,7 +48,6 @@ jobs:
 
   process-batches:
     needs: split-and-dispatch
-    name: process-batches for ${{ fromJson(needs.split-and-dispatch.outputs.matrix).count }} tasks
     strategy:
       matrix: ${{ fromJson(needs.split-and-dispatch.outputs.matrix) }}
     uses: ./.github/workflows/inner-workflow.yml
