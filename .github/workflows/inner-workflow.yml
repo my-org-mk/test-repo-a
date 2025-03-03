@@ -42,7 +42,10 @@ jobs:
         run: |
           TASKS=$(echo '${{ needs.process-batch.outputs.matrix }}' | jq -r '.task[]')
           for task in $TASKS; do
-            echo "Processing task: $task"
+            echo "::group::Processing task: $task"
+            # echo "Processing task: $task"
+            echo "Task: $task"
+            echo "::endgroup::"
           done
 #          for task in "${{ fromJson(steps.generate-matrix.outputs.matrix).task }}"; do
 #            echo "Processing task: $task"            
