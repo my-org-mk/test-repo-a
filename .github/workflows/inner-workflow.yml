@@ -40,13 +40,17 @@ jobs:
       #  shell: bash
       - name: Process Each Task
         run: |
-          TASKS=$(echo '${{ needs.process-batch.outputs.matrix }}' | jq -r '.task[]')
+          echo "::group::Taking tasks"
+          TASKS=$(echo '${{ needs.process-batch.outputs.matrix }}' | jq -r '.task[]')          
+          echo "::endgroup::"
           for task in $TASKS; do
             echo "::group::Processing task: $task"
             # echo "Processing task: $task"
             echo "Task: $task"
             echo "::endgroup::"
           done
+
+          ::error file=script.sh,line=10,col=3::This is an error
 #          for task in "${{ fromJson(steps.generate-matrix.outputs.matrix).task }}"; do
 #            echo "Processing task: $task"            
 #         done
