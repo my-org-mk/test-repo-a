@@ -98,12 +98,16 @@ jobs:
       id: build-image
       env:
         NEW_TAG: ${{ steps.tag-bump.outputs.new_tag }}
+        OLD_TAG: ${{ steps.tag-bump.outputs.old_tag }}
         TAG: ${{ steps.tag-bump.outputs.tag }}
       run: |
         if [ -n "${{ env.NEW_TAG }}" ]; then
-          echo acr put ${{ env.NEW_TAG }}
+          echo new_tag ${{ env.NEW_TAG }}
+        fi
+        if [ -n "${{ env.OLD_TAG }}" ]; then
+          echo old_tag ${{ env.OLD_TAG }}
         fi
         if [ -n "${{ env.TAG }}" ]; then
-          echo acr put ${{ env.TAG }}
+          echo tag ${{ env.TAG }}
         fi
 
