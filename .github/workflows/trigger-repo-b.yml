@@ -98,7 +98,7 @@ jobs:
       id: build-image
       env:
         NEW_TAG: ${{ steps.tag-bump.outputs.new_tag }}
-          OLD_TAG: ${{ steps.tag-bump.outputs.old_tag }}
+        OLD_TAG: ${{ steps.tag-bump.outputs.old_tag }}
         TAG: ${{ steps.tag-bump.outputs.tag }}
       run: |
         if [ -n "${{ env.NEW_TAG }}" ]; then
